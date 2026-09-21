@@ -1,6 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const axios = require("axios");
+const path = require("path");
 
 const app = express();
 const PORT = 3000;
@@ -9,7 +10,7 @@ const DELAY = 800;
 
 app.use(cors());
 app.use(express.json({ limit: "5mb" }));
-app.use(express.static("public"));
+app.use(express.static(path.join(__dirname, "public")));
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
@@ -18,15 +19,20 @@ app.get("/api/health", (req, res) => {
   res.json({ name: "NEXORA", status: "online", version: "1.0.0" });
 });
 
+/* ============ ROOT (index.html) ============ */
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "index.html"));
+});
+
 /* ============ BULK ACCESS ============ */
 app.post("/api/access/bulk", async (req, res) => {
-  const { tokens } = req.body;
+  const { tokens } = req.body || {};
   if (!Array.isArray(tokens) || !tokens.length)
     return res.status(400).json({ ok: false, error: "tokens required" });
 
   const results = [];
   for (let i = 0; i < tokens.length; i++) {
-    const token = tokens[i].trim();
+    const token = String(tokens[i]).trim();
     if (!/^[a-f0-9]{64}$/i.test(token)) {
       results.push({ token, ok: false, error: "invalid format" });
       continue;
@@ -44,7 +50,7 @@ app.post("/api/access/bulk", async (req, res) => {
 
 /* ============ BULK GUEST ============ */
 app.post("/api/guest/bulk", async (req, res) => {
-  const { accounts } = req.body;
+  const { accounts } = req.body || {};
   if (!Array.isArray(accounts) || !accounts.length)
     return res.status(400).json({ ok: false, error: "accounts required" });
 
@@ -68,7 +74,7 @@ app.post("/api/guest/bulk", async (req, res) => {
 
 /* ============ UNBAN ============ */
 app.post("/api/unban", async (req, res) => {
-  const { uid, region, reason } = req.body;
+  const { uid, region, reason } = req.body || {};
   if (!uid) return res.status(400).json({ ok: false, error: "uid required" });
 
   await sleep(1200);
@@ -82,7 +88,13 @@ app.post("/api/unban", async (req, res) => {
   });
 });
 
-/* ============ 404 ============ */
-app.use((req, res) => res.status(404).json({ ok: false, error: "not found" }));
+/* ============ 404 with logging ============ */
+app.use((req, res) => {
+  console.log(`❌ 404 → ${req.method} ${req.originalUrl}`);
+  res.status(404).json({ ok: false, error: "not found", path: req.originalUrl, method: req.method });
+});
 
-app.listen(PORT, () => console.log(`🔥 NEXORA → http://localhost:${PORT}`));
+app.listen(PORT, () => {
+  console.log(`🔥 NEXORA running → http://localhost:${PORT}`);
+  console.log(`📁 Serving static from: ${path.join(__dirname, "public")}`);
+});
