@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>NEXORA — FF Suite</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; font-family:"Segoe UI",sans-serif; }
+:root {
+  --bg:#0b0b14; --bg2:#11111c; --card:#15151f; --border:#25253a;
+  --accent:#8b5cf6; --accent2:#22d3ee; --text:#e6e6f0; --muted:#8b8ba7;
+}
+body {
+  min-height:100vh;
+  background:radial-gradient(circle at top, #1a1030, #06060d 70%);
+  color:var(--text); padding:20px;
+}
+.app { max-width:1000px; margin:0 auto; }
+.header {
+  display:flex; justify-content:space-between; align-items:center;
+  padding:18px 22px; background:var(--bg2);
+  border:1px solid var(--border); border-radius:16px; margin-bottom:18px;
+}
+.brand { display:flex; gap:14px; align-items:center; }
+.logo {
+  width:46px; height:46px; border-radius:12px;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  display:grid; place-items:center; font-weight:800; font-size:22px; color:#fff;
+}
+.header h1 { font-size:22px; letter-spacing:1px; }
+.tag { font-size:12px; color:var(--muted); margin-top:2px; }
+.status { color:#22c55e; font-size:13px; font-weight:600; }
+.tabs { display:flex; gap:8px; margin-bottom:18px; flex-wrap:wrap; }
+.tab {
+  padding:11px 18px; background:var(--card);
+  border:1px solid var(--border); color:var(--muted);
+  border-radius:10px; cursor:pointer; font-weight:600; font-size:14px;
+}
+.tab.active {
+  background:linear-gradient(135deg,var(--accent),#6d28d9);
+  color:#fff; border-color:transparent;
+  box-shadow:0 0 20px rgba(139,92,246,.5);
+}
+.panel {
+  display:none; background:var(--bg2);
+  border:1px solid var(--border); border-radius:16px; padding:24px;
+}
+.panel.active { display:block; }
+.panel h2 { font-size:18px; margin-bottom:6px; }
+.hint { font-size:13px; color:var(--muted); margin-bottom:14px; }
+textarea {
+  width:100%; padding:12px 14px; background:#0a0a12;
+  border:1px solid var(--border); border-radius:10px;
+  color:var(--text); font-family:Consolas,monospace; font-size:13px;
+  outline:none; resize:vertical;
+}
+textarea:focus { border-color:var(--accent); box-shadow:0 0 12px rgba(139,92,246,.35); }
+.actions { display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin:14px 0 18px; }
+.btn {
+  padding:11px 18px; border:none; border-radius:10px;
+  font-weight:700; font-size:14px; cursor:pointer; transition:.2s;
+}
+.btn.primary { background:linear-gradient(135deg,var(--accent),var(--accent2)); color:#fff; }
+.btn.primary:hover { transform:translateY(-2px); box-shadow:0 8px 22px rgba(139,92,246,.5); }
+.btn.ghost { background:var(--card); color:var(--muted); border:1px solid var(--border); }
+.btn.ghost:hover { color:#fff; border-color:var(--accent); }
+.btn.danger { background:#3b1010; color:#ff8a8a; border:1px solid #612020; }
+.btn.danger:hover { background:#5b1a1a; color:#fff; }
+.btn:disabled { opacity:.55; cursor:not-allowed; }
+.counter { margin-left:auto; font-size:13px; color:var(--muted); font-weight:600; }
+.log { background:#07070d; border:1px solid var(--border); border-radius:12px; padding:14px; }
+.log h3 { font-size:13px; color:var(--accent2); margin-bottom:8px; }
+.log-body {
+  font-family:Consolas,monospace; font-size:12.5px;
+  max-height:280px; overflow-y:auto;
+  color:#a7f3d0; line-height:1.55; white-space:pre-wrap;
+}
+.log-body .ok { color:#4ade80; }
+.log-body .err { color:#f87171; }
+.log-body .info { color:#67e8f9; }
+.accounts-list { display:flex; flex-direction:column; gap:10px; max-height:520px; overflow-y:auto; }
+.empty { color:var(--muted); text-align:center; padding:40px; }
+.acc-card {
+  background:#0d0d17; border:1px solid var(--border);
+  border-radius:12px; padding:14px 16px;
+  display:flex; justify-content:space-between; align-items:center; gap:12px;
+}
+.acc-card:hover { border-color:var(--accent); }
+.acc-info { font-family:Consolas,monospace; font-size:13px; }
+.acc-info b { color:var(--accent2); }
+.acc-info span { color:var(--muted); font-size:11px; }
+.acc-actions { display:flex; gap:8px; }
+.mini-btn { padding:8px 14px; font-size:12px; border-radius:8px; border:none; cursor:pointer; font-weight:700; }
+.mini-btn.unban { background:#14532d; color:#86efac; }
+.mini-btn.unban:hover { background:#166534; color:#fff; }
+.mini-btn.copy { background:#1e1b4b; color:#c4b5fd; }
+.mini-btn.copy:hover { background:#312e81; color:#fff; }
+.footer { text-align:center; margin-top:22px; font-size:12px; color:var(--muted); }
+.footer b { color:var(--accent); }
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="header">
+    <div class="brand">
+      <div class="logo">N</div>
+      <div>
+        <h1>NEXORA</h1>
+        <p class="tag">Access Token & Guest Extraction Suite</p>
+      </div>
+    </div>
+    <div class="status">● Online</div>
+  </header>
+
+  <nav class="tabs">
+    <button class="tab active" data-tab="access">🔑 Access Tokens</button>
+    <button class="tab" data-tab="guest">🎮 Guest Extract</button>
+    <button class="tab" data-tab="account">👤 Accounts & Unban</button>
+  </nav>
+
+  <section id="access" class="panel active">
+    <h2>Bulk Access Token Queue</h2>
+    <p class="hint">Ek line me ek token (64-hex). 100+ supported.</p>
+    <textarea id="accessTokens" rows="8" placeholder="a1b2c3...64hex&#10;d4e5f6...64hex"></textarea>
+    <div class="actions">
+      <button id="runAccess" class="btn primary">🚀 Process Queue</button>
+      <button id="clearAccess" class="btn ghost">Clear</button>
+      <span class="counter" id="accessCount">0 tokens</span>
+    </div>
+    <div class="log">
+      <h3>Live Log</h3>
+      <div id="accessLog" class="log-body">Waiting...</div>
+    </div>
+  </section>
+
+  <section id="guest" class="panel">
+    <h2>Guest Extraction Queue</h2>
+    <p class="hint">Format: <code>uid:password</code> — ek line me ek.</p>
+    <textarea id="guestList" rows="8" placeholder="7530733452:64hexpassword&#10;1234567890:64hexpassword"></textarea>
+    <div class="actions">
+      <button id="runGuest" class="btn primary">⚡ Extract All</button>
+      <button id="loadFromAccess" class="btn ghost">↻ Load from Access</button>
+      <button id="clearGuest" class="btn ghost">Clear</button>
+      <span class="counter" id="guestCount">0 accounts</span>
+    </div>
+    <div class="log">
+      <h3>Extraction Log</h3>
+      <div id="guestLog" class="log-body">Waiting...</div>
+    </div>
+  </section>
+
+  <section id="account" class="panel">
+    <h2>Accounts & Unban Tool</h2>
+    <p class="hint">Extracted accounts yahan dikhengi. Unban directly karo.</p>
+    <div class="actions">
+      <button id="refreshAccounts" class="btn ghost">↻ Refresh</button>
+      <button id="exportAccounts" class="btn ghost">⬇ Export JSON</button>
+      <button id="clearAccounts" class="btn danger">🗑 Clear All</button>
+      <span class="counter" id="accCount">0 accounts</span>
+    </div>
+    <div id="accountsList" class="accounts-list">
+      <p class="empty">No accounts yet. Extract guests first.</p>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <p>© 2025 <b>NEXORA</b> — v1.0.0</p>
+  </footer>
+</div>
+
+<script src="app.js"></script>
+</body>
+  </html>
